@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.mapper.BorrowMapper">
+    <resultMap id="baseResultMap" type="me.zhengjie.modules.system.domain.BorrowHistory">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="book_id" property="bookId" />
+        <result column="end_time" property="endTime" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <select id="queryBorrowStatus" resultType="java.lang.String">
+        select
+            h.status
+        from
+            r_borrow_history h
+        left join sys_user u on
+            h.user_id = u.user_id
+        where
+            u.username = #{username}
+          and h.book_id = #{bookId};
+    </select>
+
+    <select id="selectVo" resultType="me.zhengjie.modules.system.domain.vo.BorrowVo">
+        select h.book_id bookId, b.title bookName, h.end_time dueTime,
+            case when h.end_time &lt; sysdate() then 'Overdue'
+                else 'Normal'
+            end as overStatus,
+            case when h.status = '1' then 'Returned'
+                else 'Unreturned'
+            end as loanStatus
+        from r_borrow_history h
+        left join r_books b on h.book_id = b.id
+        where h.user_id = #{userId}
+        order by loanStatus desc, overStatus desc, end_time desc
+    </select>
+
+    <select id="listDueRecord" resultMap="baseResultMap">
+        select
+            *
+        from
+            r_borrow_history h
+        where
+            h.user_id = #{userId}
+            and h.status = '0'
+            and h.end_time &lt; sysdate()
+    </select>
+
+
+    <update id="updateByUser">
+        update r_borrow_history h
+        set h.status = '1'
+        where
+          h.user_id = #{userId}
+          and h.book_id = #{bookId}
+          and h.status = '0';
+    </update>
+</mapper>

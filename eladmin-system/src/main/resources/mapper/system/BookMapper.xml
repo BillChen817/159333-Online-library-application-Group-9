@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.mapper.BookMapper">
+    <resultMap id="baseResultMap" type="me.zhengjie.modules.system.domain.Book">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="author" property="author"/>
+        <result column="folder" property="folder"/>
+        <result column="nation" property="nation"/>
+        <result column="publisher" property="publisher"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="media_type" property="mediaType" />
+        <result column="url" property="url"/>
+        <result column="sample" property="sample"/>
+        <result column="upload_time" property="uploadTime"/>
+        <result column="user_create_by" property="createBy"/>
+        <result column="user_update_by" property="updateBy"/>
+        <result column="user_create_time" property="createTime"/>
+        <result column="user_update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="listAll" resultMap="baseResultMap">
+        select * from r_books
+        <where>
+            <choose>
+                <when test="type == 1 and key != null and key != ''">
+                    and author like CONCAT('%', #{key}, '%')
+                </when>
+                <when test="type == 2 and key != null and key != ''">
+                    and title like CONCAT('%', #{key}, '%')
+                </when>
+            </choose>
+        </where>
+        order by upload_time desc
+        limit #{offset}, #{size}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="baseResultMap">
+        select * from r_books
+        where title like CONCAT('%', #{key}, '%')
+        union
+        select * from r_books
+        where author like CONCAT('%', #{key}, '%')
+    </select>
+
+    <select id="countAll" resultType="java.lang.Long">
+        select count(*)
+        from r_books u
+        <where>
+            <choose>
+                <when test="type == 1">
+                    and author like CONCAT('%', #{key}, '%')
+                </when>
+                <when test="type == 2">
+                    and title like CONCAT('%', #{key}, '%')
+                </when>
+            </choose>
+        </where>
+    </select>
+
+    <select id="listByCategory" resultType="java.lang.String">
+        select rb.id
+          from r_books rb
+        where not exists (
+            select 1 from r_book_shelf rbs
+            where rbs.book_id = rb.id and rbs.user_id = #{userId}
+        ) and  category in
+        <foreach collection="genres" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="randomSelect" resultType="java.lang.String">
+        SELECT * FROM r_books rb
+        where not exists (
+            select 1 from r_book_shelf rbs
+            where rbs.book_id = rb.id and rbs.user_id = #{userId}
+        )
+        and rb.id not in
+        <foreach collection="excludeIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY RAND()
+        LIMIT #{remainCount}
+    </select>
+
+    <select id="randomReturn" resultMap="baseResultMap">
+        SELECT * FROM r_books
+        ORDER BY RAND()
+        LIMIT #{total}
+    </select>
+
+    <select id="listBookByIds" resultMap="baseResultMap">
+        select * from r_books
+        where id in
+        <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

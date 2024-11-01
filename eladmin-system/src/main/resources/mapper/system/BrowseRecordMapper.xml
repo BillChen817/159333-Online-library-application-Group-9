@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.mapper.RecordMapper">
+    <delete id="deleteBookBrowseHistory">
+        delete from r_browser_records where book_id = #{bookId}
+    </delete>
+
+    <select id="listBrowseHistory" resultType="me.zhengjie.modules.system.domain.Book">
+        select b.*
+        from r_browser_records r
+        left join r_books b on b.id = r.book_id
+        where r.user_id = #{userId}
+        order by browse_time desc
+        limit #{offset}, #{size}
+    </select>
+
+    <select id="countBrowseAll" resultType="java.lang.Long">
+        select count(1) from r_browser_records
+        where user_id = #{userId}
+    </select>
+    <select id="getBrowseRecord" resultType="me.zhengjie.modules.system.domain.BrowseRecord">
+        select r.*
+        from r_browser_records r
+        where r.user_id = #{userId} and r.book_id = #{bookId}
+    </select>
+</mapper>

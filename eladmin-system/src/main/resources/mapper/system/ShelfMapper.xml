@@ -1,0 +1,58 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.mapper.ShelfMapper">
+    <delete id="deleteFromShelfByBookId">
+        delete from r_book_shelf
+        where user_id = #{userId} and book_id = #{bookId}
+    </delete>
+    <delete id="deleteBookHistoryOfShelf">
+        delete from r_book_shelf where book_id = #{bookId}
+    </delete>
+
+    <select id="listBookShelfByUser" resultType="me.zhengjie.modules.system.domain.Book">
+        select b.* from r_book_shelf rbs
+        left join r_books b on rbs.book_id = b.id
+        where rbs.user_id  = #{userId}
+        <if test="category != null and category != ''">
+            and b.category = #{category}
+        </if>
+        <if test="author != null and author != ''">
+            and b.author = #{author}
+        </if>
+        order by rbs.create_time desc
+        limit #{offset}, #{size}
+    </select>
+
+    <select id="countBooks" resultType="java.lang.Integer">
+        select count(1) from r_book_shelf s
+        where s.user_id = #{userId} and s.book_id = #{bookId}
+    </select>
+    <select id="countBooksOnShelf" resultType="java.lang.Long">
+        select count(1) from r_book_shelf s
+        where s.user_id = #{userId}
+    </select>
+
+    <select id="listAuthors" resultType="me.zhengjie.modules.system.domain.vo.DictVo">
+        select
+            distinct rb.author label, uuid() value
+        from
+            r_book_shelf rbs
+        left join r_books rb on
+            rbs.book_id = rb.id
+        where
+            rbs.user_id = #{userId}
+    </select>
+
+    <select id="listCategories" resultType="me.zhengjie.modules.system.domain.vo.DictVo">
+        select
+            distinct sdd.label, sdd.value
+        from
+            r_book_shelf rbs
+        left join r_books rb on
+            rbs.book_id = rb.id
+        left join sys_dict_detail sdd on
+            rb.category = sdd.detail_id
+        where
+            rbs.user_id = #{userId}
+          and sdd.dict_id = '6'
+    </select>
+</mapper>

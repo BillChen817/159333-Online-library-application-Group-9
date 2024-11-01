@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.mapper.CommentMapper">
+    <select id="listByBookId" resultType="me.zhengjie.modules.system.domain.CommentDto">
+        select
+            rc.id,
+            rc.content,
+            rc.rating,
+            rc.create_time,
+            su.nick_name,
+            su.avatar_name
+        from
+            r_comments rc
+        left join sys_user su on
+            rc.create_by = su.username
+        where book_id = #{bookId}
+        order by rc.create_time desc
+    </select>
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.mapper.ContentsMapper">
+
+    <select id="listContents" resultType="me.zhengjie.modules.system.domain.Contents">
+        select c.* from r_contents c
+        where c.book_id = #{bookId}
+    </select>
+
+    <delete id="deleteContents">
+        delete from r_contents c where c.id = #{id}
+    </delete>
+</mapper>
