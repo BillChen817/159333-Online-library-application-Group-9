@@ -3,7 +3,6 @@
 #### INTRODUCTION
 A backend management system with front-end and back-end separation based on Spring Boot 2.6.4, Mybatis-Plus, JWT, Spring Security, Redis, and Vue
 
-**Development Documentation：**  [https://eladmin.vip](https://eladmin.vip)
 
 **ACCOUNT AND PASSWORD：** `admin / 123456`
 
